@@ -1,16 +1,65 @@
 from app.database import collection
 
 async def create_user(user):
-    return await collection.insert_one(user)
+    print("📥 Received user:", user)  # Debug print
+    try:
+        result = await collection.insert_one(user)
+        print("✅ Inserted user with ID:", result.inserted_id)
+        return {"message": "User created", "id": str(result.inserted_id)}
+    except Exception as e:
+        print("❌ Error inserting user:", e)
+        raise e  # Reraise the actual error so FastAPI shows the real reason
 
 async def get_users():
-    return await collection.find().to_list(100)
+    try:
+        print("📡 Fetching all users...")
+        users_cursor = collection.find()
+        users = await users_cursor.to_list(length=100)
+        
+        # Convert ObjectId to str
+        for user in users:
+            user["_id"] = str(user["_id"])
+        
+        print("✅ Users fetched:", users)
+        return users
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise e
 
 async def get_user_by_email(email):
-    return await collection.find_one({"email": email})
+    try:
+        user = await collection.find_one({"email": email})
+        if user:
+            user["_id"] = str(user["_id"])  # Convert ObjectId to string
+        return user
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise e
 
 async def update_user(email, new_data):
-    return await collection.update_one({"email": email}, {"$set": new_data})
+    try:
+        result = await collection.update_one({"email": email}, {"$set": new_data})
+        if result.modified_count == 1:
+            return {"message": "User updated successfully"}
+        elif result.matched_count == 1:
+            return {"message": "No new data to update"}  # Same data as before
+        else:
+            return {"message": "User not found"}
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise e
 
 async def delete_user(email):
-    return await collection.delete_one({"email": email})
+    try:
+        result = await collection.delete_one({"email": email})
+        if result.deleted_count == 1:
+            return {"message": "User deleted successfully"}
+        else:
+            return {"message": "User not found"}
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise e
