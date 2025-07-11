@@ -1,4 +1,3 @@
-# app/routes.py
 from fastapi import APIRouter
 from app.models import User
 from app import crud
@@ -11,7 +10,7 @@ async def root():
 
 @router.post("/user")
 async def add_user(user: User):
-    print("📨 Received user:", user)
+    print("Received user:", user)
     return await crud.create_user(user.dict())
 
 @router.get("/users")
