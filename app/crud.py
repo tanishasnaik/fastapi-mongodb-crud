@@ -1,7 +1,7 @@
 from app.database import collection
 
 async def create_user(user):
-    print("📥 Received user:", user)
+    print("Received user:", user)
     try:
         result = await collection.insert_one(user)
         print("Inserted user with ID:", result.inserted_id)
@@ -12,7 +12,7 @@ async def create_user(user):
 
 async def get_users():
     try:
-        print("📡 Fetching all users...")
+        print("Fetching all users...")
         users_cursor = collection.find()
         users = await users_cursor.to_list(length=100)
         
